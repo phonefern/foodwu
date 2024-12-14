@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "../firebaseConfig"; // Replace with your Firebase config
 import { useNavigate } from "react-router-dom";
+
+
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [groupedOrders, setGroupedOrders] = useState({});
@@ -12,7 +14,11 @@ const AdminOrders = () => {
         const fetchOrders = async () => {
             try {
                 const ordersRef = collection(db, "orders");
-                const q = query(ordersRef, orderBy("timestamp", "desc")); // Order by timestamp
+                const q = query(
+                    ordersRef,
+                    where("status", "==", "pending"),
+                    orderBy("timestamp", "desc") 
+                );
                 const querySnapshot = await getDocs(q);
 
                 const fetchedOrders = [];
@@ -82,7 +88,7 @@ const AdminOrders = () => {
             </div>
 
             {Object.entries(groupedOrders).map(([userId, userOrders]) => (
-                <div key={userId} className="bg-white shadow-md rounded-lg p-4 mb-4 cursor-pointer" onClick={() => navigate(`/order-list/${userId}`)}>
+                <div key={userId} className="bg-white shadow-md rounded-lg p-4 mb-4 cursor-pointer" onClick={() => navigate(`/admin-list/${userId}`)}>
                     <div className="flex justify-between items-center mb-2">
                         <p className="text-sm font-semibold">
                             ID: <span className="text-gray-800">{userId}</span>

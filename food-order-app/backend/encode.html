@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload with Base64 and Firestore</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIHTDNjyqNJRDx7r3bIqJGqTlcrc6fO3E",
+            authDomain: "ttgo-612a8.firebaseapp.com",
+            databaseURL: "https://ttgo-612a8-default-rtdb.firebaseio.com",
+            projectId: "ttgo-612a8",
+            storageBucket: "ttgo-612a8.firebasestorage.app",
+            messagingSenderId: "201406860974",
+            appId: "1:201406860974:web:0d1524ab12ddcb04aca73f",
+            measurementId: "G-L9LV2L77QN"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to resize and convert image to Base64
+        const resizeAndConvertToBase64 = (file, maxWidth, maxHeight) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+
+                    // Maintain aspect ratio
+                    if (width > maxWidth || height > maxHeight) {
+                        const aspectRatio = width / height;
+                        if (width > height) {
+                            width = maxWidth;
+                            height = maxWidth / aspectRatio;
+                        } else {
+                            height = maxHeight;
+                            width = maxHeight * aspectRatio;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    resolve(canvas.toDataURL('image/jpeg')); // Base64 string
+                };
+            });
+        };
+
+        // Function to upload Base64 string and name to Firestore
+        const uploadImageToFirestore = async (base64String, name) => {
+            try {
+                const imageDoc = await addDoc(collection(db, 'images'), {
+                    imageBase64: base64String,
+                    name: name,
+                    createdAt: new Date().toISOString()
+                });
+                alert(`Image uploaded successfully! Document ID: ${imageDoc.id}`);
+            } catch (error) {
+                console.error("Error uploading image: ", error);
+                alert("Failed to upload image.");
+            }
+        };
+
+        // Handle file selection
+        const handleFileUpload = async (event) => {
+            const file = event.target.files[0];
+            const name = document.getElementById('nameInput').value;
+            if (!file || !name) {
+                alert("Please provide both an image and a name.");
+                return;
+            }
+
+            // Resize and encode to Base64
+            const maxWidth = 800; // Maximum width
+            const maxHeight = 800; // Maximum height
+            const base64String = await resizeAndConvertToBase64(file, maxWidth, maxHeight);
+
+            // Upload to Firestore
+            await uploadImageToFirestore(base64String, name);
+        };
+
+        // Add event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', handleFileUpload);
+        });
+    </script>
+</head>
+
+<body>
+    <div style="text-align: center; margin-top: 50px;">
+        <h1>Upload Image to Firestore</h1>
+        <input type="text" id="nameInput" placeholder="Enter image name">
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+</body>
+
+</html>

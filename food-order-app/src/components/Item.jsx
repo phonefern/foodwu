@@ -1,35 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; 
+import { useParams } from "react-router-dom";
 import MenuItem from "./MenuItem";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 const Item = () => {
     const [sections, setSections] = useState([]);
     const [userId, setUserId] = useState("");
+    const [images, setImages] = useState({});
 
-    
     const { userId: urlUserId } = useParams();
 
     useEffect(() => {
-        
         if (urlUserId) {
             setUserId(urlUserId);
         }
     }, [urlUserId]);
 
-    
+    useEffect(() => {
+        // Fetch images from the "images" collection and store them in a state
+        const fetchImages = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "images"));
+                const imagesMap = {};
+                querySnapshot.docs.forEach((doc) => {
+                    const imageData = doc.data();
+                    imagesMap[imageData.name] = imageData.imageBase64;
+                });
+                setImages(imagesMap);
+            } catch (error) {
+                console.error("Error fetching images:", error);
+            }
+        };
+
+        fetchImages();
+    }, []);
+
     useEffect(() => {
         const fetchMenus = async () => {
             try {
-               
                 const querySnapshot = await getDocs(collection(db, "menus"));
                 const menus = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
 
-                
+                // Group menus by category
                 const groupedSections = [
                     {
                         id: "recommended",
@@ -53,14 +69,23 @@ const Item = () => {
                     },
                 ];
 
-                setSections(groupedSections);
+               
+                const updatedSections = groupedSections.map((section) => ({
+                    ...section,
+                    items: section.items.map((item) => ({
+                        ...item,
+                        imageBase64: images[item.name] || "https://images.pexels.com/photos/920220/pexels-photo-920220.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                    })),
+                }));
+
+                setSections(updatedSections);
             } catch (error) {
                 console.error("Error fetching menu data:", error);
             }
         };
 
         fetchMenus();
-    }, []);
+    }, [images]);
 
     return (
         <div>
@@ -78,7 +103,7 @@ const Item = () => {
                                     className="block"
                                 >
                                     <MenuItem
-                                        image={item.image_url || "https://images.pexels.com/photos/1527603/pexels-photo-1527603.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} // Use a default image if `image_url` is undefined
+                                        image={item.imageBase64}
                                         name={item.name}
                                         price={item.price}
                                     />

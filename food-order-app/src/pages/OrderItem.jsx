@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-// import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import AddOnOptions from '../components/AddOnOptions';
+import LoadingScreen from '../components/LoadingScreen';
+import QuantitySelector from '../components/QuantitySelector';
 
 const OrderItem = () => {
     const [quantity, setQuantity] = useState(1);
@@ -12,24 +14,23 @@ const OrderItem = () => {
     const [description, setDescription] = useState('');
     const location = useLocation();
     const menuId = new URLSearchParams(location.search).get('menuId');
-
     const navigate = useNavigate();
 
-    const handleBack = async () => {
-        await handleAddToCart();
-        navigate(-1);
-    };
-
-    // Add-on options
     const addOnOptions = [
+        { name: 'ไข่ต้ม', price: 7 },
         { name: 'ไข่ดาว', price: 10 },
+        { name: 'ไข่ขยี้', price: 10 },
         { name: 'ไข่เจียว', price: 15 },
-        { name: 'ไตปลาแห้ง', price: 5 },
-        { name: 'น้ำพริกกะปิ', price: 5 },
+        { name: 'ปลาทูทอด', price: 15 },
+        { name: 'น้ำพริกมันปู', price: 15 },
+        { name: 'น้ำพริกกะปิ', price: 10 },
+        { name: 'น้ำพริกมะชามหมูกุ้ง', price: 15 },
+        { name: 'น้ำพริกกากหมู', price: 15 },
+        { name: 'น้ำพริกคั่วปลาฉิงฉ้าง', price: 15 },
+        { name: 'ไตปลาแห้ง', price: 15 },
         { name: 'พิเศษ', price: 10 },
     ];
 
-    // Fetch menu item from Firestore
     useEffect(() => {
         const fetchMenuItem = async () => {
             try {
@@ -48,7 +49,6 @@ const OrderItem = () => {
         if (menuId) fetchMenuItem();
     }, [menuId]);
 
-    // Handle Add-on Selection
     const handleAddOnChange = (addOn) => {
         if (selectedAddOns.some((selected) => selected.name === addOn.name)) {
             setSelectedAddOns(selectedAddOns.filter((selected) => selected.name !== addOn.name));
@@ -57,14 +57,12 @@ const OrderItem = () => {
         }
     };
 
-    // Calculate Total Price
     const calculateTotalPrice = () => {
         const basePrice = item?.price || 0;
         const addOnPrice = selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0);
         return (basePrice + addOnPrice) * quantity;
     };
 
-    // Create Order in Firestore
     const handleAddToCart = async () => {
         if (!item) return;
 
@@ -93,34 +91,21 @@ const OrderItem = () => {
         }
     };
 
-    if (!item) {
-        return (
-            <div
-                className="fixed inset-0 flex items-center justify-center bg-white z-50"
-            >
-                <img
-                    src="..\src\Loading.gif"
-                    alt="Loading..."
-                    className="w-1/5"
-                />
-            </div>
-        );
-    }
+    const handleBack = async () => {
+        await handleAddToCart();
+        navigate(-1);
+    };
 
+    if (!item) return <LoadingScreen />;
 
     return (
         <div className="max-w-md mx-auto relative">
-            {/* Close Icon */}
             <a
-                href="/dashboard/:userId"
+                onClick={() => navigate(-1)}
                 className="absolute top-4 left-4 bg-[#00000080] text-gray-700 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-300"
                 aria-label="Close"
             >
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 384 512"
-                    className="w-5 h-5">
-
-
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" className="w-5 h-5">
                     <path fill="#ffffff" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
                 </svg>
             </a>
@@ -133,27 +118,11 @@ const OrderItem = () => {
             <p className="text-gray-500 mb-2 px-2">Starting price</p>
             <p className="text-lg font-semibold mb-4 px-2">${item.price}</p>
 
-            <div className="mb-6">
-                <h2 className="text-lg font-medium mb-2 px-2">เพิ่ม</h2>
-                <p className="text-gray-500 text-sm mb-4 px-2">Choose your options</p>
-                <div className="space-y-2">
-                    {addOnOptions.map((option, index) => (
-                        <div key={index} className="flex items-center px-2">
-                            <input
-                                type="checkbox"
-                                id={`option-${index}`}
-                                className="mr-2"
-                                checked={selectedAddOns.some((selected) => selected.name === option.name)}
-                                onChange={() => handleAddOnChange(option)}
-                            />
-                            <label htmlFor={`option-${index}`} className="flex-1">
-                                {option.name}
-                            </label>
-                            <span className="text-sm text-gray-500">+ ${option.price.toFixed(2)}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <AddOnOptions
+                addOnOptions={addOnOptions}
+                selectedAddOns={selectedAddOns}
+                handleAddOnChange={handleAddOnChange}
+            />
 
             <div className="mb-6 px-2">
                 <h2 className="text-lg font-medium mb-2 px-1">รายละเอียดเพิ่มเติม</h2>
@@ -166,23 +135,7 @@ const OrderItem = () => {
             </div>
 
             <div className="flex items-center justify-between px-2">
-                <div className="flex items-center">
-                    <button
-                        onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
-                        className="w-8 h-8 border rounded-l-lg flex items-center justify-center bg-gray-100"
-                    >
-                        -
-                    </button>
-                    <span className="w-12 h-8 border-t border-b flex items-center justify-center text-lg">
-                        {quantity}
-                    </span>
-                    <button
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="w-8 h-8 border rounded-r-lg flex items-center justify-center bg-gray-100"
-                    >
-                        +
-                    </button>
-                </div>
+                <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
                 <button
                     onClick={handleBack}
                     className="bg-green-500 text-white px-4 py-2 rounded-lg"
