@@ -17,7 +17,7 @@ const OrderList = () => {
                 const q = query(
                     ordersRef,
                     where("userId", "==", userId),
-                    where("status", "==", "pending")
+                    where("status", "==", "confirm")
                 );
                 const querySnapshot = await getDocs(q);
 
@@ -49,13 +49,13 @@ const OrderList = () => {
             const q = query(
                 ordersRef,
                 where("userId", "==", userId),
-                where("status", "==", "pending")
+                where("status", "==", "confirm")
             );
             const querySnapshot = await getDocs(q);
 
             const batchUpdates = [];
             querySnapshot.forEach((doc) => {
-                const docRef = doc.ref; // Reference to the specific document
+                const docRef = doc.ref; 
                 batchUpdates.push(updateDoc(docRef, { status: "completed" }));
             });
 
@@ -64,7 +64,7 @@ const OrderList = () => {
 
             // Navigate back or update UI
             console.log("Orders successfully marked as completed.");
-            navigate(`/admin-orders`); // Navigate to admin-orders page
+            navigate(`/admin-orders`); 
         } catch (error) {
             console.error("Error updating orders:", error);
         }

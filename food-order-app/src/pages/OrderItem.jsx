@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useNavigate } from "react-router-dom";
 import AddOnOptions from '../components/AddOnOptions';
@@ -36,8 +36,25 @@ const OrderItem = () => {
             try {
                 const docRef = doc(db, 'menus', menuId);
                 const docSnap = await getDoc(docRef);
+
                 if (docSnap.exists()) {
-                    setItem({ id: docSnap.id, ...docSnap.data() });
+                    const menuItem = { id: docSnap.id, ...docSnap.data() };
+
+                    // Fetch corresponding image from the images collection
+                    const imagesQuery = query(
+                        collection(db, 'images'),
+                        where('name', '==', menuItem.name)
+                    );
+                    const imageSnap = await getDocs(imagesQuery);
+
+                    if (!imageSnap.empty) {
+                        const imageData = imageSnap.docs[0].data();
+                        menuItem.imageBase64 = imageData.imageBase64;
+                    } else {
+                        console.warn('No matching image found for menu item name:', menuItem.name);
+                    }
+
+                    setItem(menuItem);
                 } else {
                     console.error('No such document!');
                 }
@@ -110,7 +127,7 @@ const OrderItem = () => {
                 </svg>
             </a>
             <img
-                src={item.image_url || "../src/assets/img/egg.jpg"}
+                src={item.imageBase64 || "../src/assets/img/egg.jpg"}
                 alt="Food item"
                 className="rounded-lg mb-4 w-full h-64 object-cover"
             />
@@ -125,7 +142,18 @@ const OrderItem = () => {
             />
 
             <div className="mb-6 px-2">
-                <h2 className="text-lg font-medium mb-2 px-1">รายละเอียดเพิ่มเติม</h2>
+                <h2 className="text-lg font-medium mb-2 flex items-center">
+                    รายละเอียดเพิ่มเติม
+                    <select
+                        className="ml-2 border rounded-lg p-1 text-sm"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    >
+                        <option value="">ใส่กล่องหรือกินที่นี่</option>
+                        <option value="ใส่กล่อง">ใส่กล่อง</option>
+                        <option value="กินนี่">กินนี่</option>
+                    </select>
+                </h2>
                 <textarea
                     className="w-full border rounded-lg p-2 text-sm"
                     placeholder="Add your note"

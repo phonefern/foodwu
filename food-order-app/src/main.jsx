@@ -7,6 +7,7 @@ import OrderList from './pages/OrderList.jsx'
 import AdminOrders from './pages/AdminOrders.jsx'
 import MenuUser from './pages/MenuUser.jsx'
 import AdminList from './pages/AdminList.jsx'
+import UserLoading from './pages/UserLoading.jsx'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 createRoot(document.getElementById('root')).render(
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/order-list/:userId" element={<OrderList />} />
         <Route path="/admin-orders" element={<AdminOrders />} />
         <Route path="/admin-list/:userId" element={<AdminList />} />
+        <Route path="/user-loading/:userId" element={<UserLoading />} />
         
       </Routes>
     </Router>

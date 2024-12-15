@@ -53,13 +53,13 @@ const OrderList = () => {
 
     const handleCancel = async (itemId, orderId) => {
         try {
-            // Mark item for cancellation with animation
+           
             setOrders(prevOrders => prevOrders.filter(order => order.itemId !== itemId));
 
-            // Find the specific order document and update its status to 'cancelled'
+            
             const orderRef = doc(db, "orders", orderId);
 
-            // Update the status of the order to 'cancelled'
+           
             await updateDoc(orderRef, {
                 status: "cancelled",
             });
@@ -67,6 +67,21 @@ const OrderList = () => {
             console.log("Order status updated to 'cancelled' for orderId:", orderId);
         } catch (error) {
             console.error("Error cancelling order:", error);
+        }
+    };
+
+    const handleConfirmOrder = async () => {
+        try {
+            const updates = orders.map(async (order) => {
+                const orderRef = doc(db, "orders", order.orderId);
+                return updateDoc(orderRef, { status: "confirm" });
+            });
+
+            await Promise.all(updates);
+            alert("คำสั่งซื้อของคุณได้รับการยืนยันแล้ว!");
+            navigate(`/user-loading/${userId}`);
+        } catch (error) {
+            console.error("Error confirming orders:", error);
         }
     };
 
@@ -152,7 +167,7 @@ const OrderList = () => {
             <div
                 className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer"
                 style={{ zIndex: 100 }}
-                onClick={() => navigate(`/dashboard/${userId}`)}
+                onClick={handleConfirmOrder}
             >
                 <div className="flex items-center">
                     <span className="bg-white text-green-500 font-bold px-2 rounded-full mr-3">

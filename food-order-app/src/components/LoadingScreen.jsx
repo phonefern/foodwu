@@ -1,13 +1,13 @@
 import React from "react";
+import Lottie from "lottie-react";
+import loadingAnimation from "../assets/progress-bar.json";
 
-const LoadingScreen = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-        <img
-            src="../src/Loading.gif"
-            alt="Loading..."
-            className="w-1/5"
-        />
-    </div>
-);
+const LoadingScreen = () => {
+    return (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+            <Lottie animationData={loadingAnimation} loop={false} />
+        </div>
+    );
+};
 
 export default LoadingScreen;

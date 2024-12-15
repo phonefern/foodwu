@@ -1,63 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig"; // Replace with your Firebase config
 import { useNavigate } from "react-router-dom";
-
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [groupedOrders, setGroupedOrders] = useState({});
     const navigate = useNavigate();
 
-    // Fetch orders from Firestore
+    // Fetch orders in real-time
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const ordersRef = collection(db, "orders");
-                const q = query(
-                    ordersRef,
-                    where("status", "==", "pending"),
-                    orderBy("timestamp", "desc") 
-                );
-                const querySnapshot = await getDocs(q);
+        const ordersRef = collection(db, "orders");
+        const q = query(
+            ordersRef,
+            where("status", "==", "confirm"),
+            orderBy("timestamp", "desc")
+        );
 
-                const fetchedOrders = [];
-                querySnapshot.forEach((doc) => {
-                    const orderData = doc.data();
-                    const items = orderData.items || [];
-                    const totalPrice = items.reduce((total, item) => total + item.totalPrice, 0);
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const fetchedOrders = [];
+            querySnapshot.forEach((doc) => {
+                const orderData = doc.data();
+                const items = orderData.items || [];
+                const totalPrice = items.reduce((total, item) => total + item.totalPrice, 0);
 
-                    fetchedOrders.push({
-                        id: doc.id,
-                        userId: orderData.userId || "Unknown User",
-                        totalPrice,
-                        items,
-                        timestamp: orderData.timestamp || new Date().toISOString(),
-                        status: orderData.status || "pending",
-                    });
+                fetchedOrders.push({
+                    id: doc.id,
+                    userId: orderData.userId || "Unknown User",
+                    totalPrice,
+                    items,
+                    timestamp: orderData.timestamp || new Date().toISOString(),
+                    status: orderData.status || "pending",
                 });
+            });
 
-                setOrders(fetchedOrders);
+            setOrders(fetchedOrders);
 
-                // Group orders by userId
-                const grouped = fetchedOrders.reduce((acc, order) => {
-                    if (!acc[order.userId]) {
-                        acc[order.userId] = {
-                            orders: [],
-                            totalPrice: 0,
-                        };
-                    }
-                    acc[order.userId].orders.push(order);
-                    acc[order.userId].totalPrice += order.totalPrice;
-                    return acc;
-                }, {});
-                setGroupedOrders(grouped);
-            } catch (error) {
-                console.error("Error fetching orders:", error);
-            }
-        };
+            // Group orders by userId
+            const grouped = fetchedOrders.reduce((acc, order) => {
+                if (!acc[order.userId]) {
+                    acc[order.userId] = {
+                        orders: [],
+                        totalPrice: 0,
+                    };
+                }
+                acc[order.userId].orders.push(order);
+                acc[order.userId].totalPrice += order.totalPrice;
+                return acc;
+            }, {});
+            setGroupedOrders(grouped);
+        });
 
-        fetchOrders();
+        // Cleanup the subscription
+        return () => unsubscribe();
     }, []);
 
     // Format timestamp to relative time
