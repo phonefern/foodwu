@@ -13,7 +13,7 @@ const NavBar = () => {
                 <div className="max-w-4xl mx-auto flex items-center justify-center py-4 px-4">
                     <div className="flex items-center flex-col">
                         <img
-                            src="..\src\assets\img\diet.png"
+                            src="/assets/img/diet.png"
                             alt="logo"
                             className="w-10 h-10 mr-2"
                         />

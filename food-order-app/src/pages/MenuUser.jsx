@@ -8,7 +8,7 @@ const DashBoard = () => {
   return (
     <div height="710px" overflow="auto">
       <div className="bg-gray-50 min-h-screen">
-      <div className="w-full h-48 bg-cover bg-center" style={{ backgroundImage: 'url(../src/assets/img/wp.jpg)' }}>
+      <div className="w-full h-48 bg-cover bg-center" style={{ backgroundImage: 'url(/assets/img/wp.jpg)' }}>
       </div>
         <NavBar />
         <Item />

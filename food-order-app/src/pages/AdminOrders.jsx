@@ -71,7 +71,7 @@ const AdminOrders = () => {
         <div className="p-4 bg-gray-200 min-h-screen">
             <div className="flex items-center justify-between mb-6">
                 {/* Home Icon */}
-                <img src="..\src\assets\img\home.png" alt="home icon" className="w-5 h-5" />
+                <img src="\assets\img\home.png" alt="home icon" className="w-5 h-5" />
 
                 {/* Centered Heading */}
                 <h1 className="text-xl font-semibold text-center flex-grow text-center">
@@ -79,7 +79,7 @@ const AdminOrders = () => {
                 </h1>
 
                 {/* Option Icon */}
-                <img src="..\src\assets\img\option.png" alt="option icon" className="w-5 h-5" />
+                <img src="\assets\img\option.png" alt="option icon" className="w-5 h-5" />
             </div>
 
             {Object.entries(groupedOrders).map(([userId, userOrders]) => (
