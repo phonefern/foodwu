@@ -12,7 +12,7 @@ body {
   color: var(--color-primary-text);
   transition: color .5s, background-color .5s;
   line-height: 1.6;
-  font-family: DBHeaventNow !important;
+  font-family: 'Kanit', sans-serif !important; 
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -24,6 +24,7 @@ body {
 
 body * {
   max-width: 480px;
+  
 }
 
 
@@ -59,3 +60,4 @@ body * {
       content: "...";
   }
 }
+

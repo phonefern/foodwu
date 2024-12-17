@@ -53,13 +53,13 @@ const OrderList = () => {
 
     const handleCancel = async (itemId, orderId) => {
         try {
-           
+
             setOrders(prevOrders => prevOrders.filter(order => order.itemId !== itemId));
 
-            
+
             const orderRef = doc(db, "orders", orderId);
 
-           
+
             await updateDoc(orderRef, {
                 status: "cancelled",
             });
@@ -143,7 +143,7 @@ const OrderList = () => {
                             <div className="flex flex-col items-end">
                                 {/* Price */}
                                 <p className="text-sm font-medium text-gray-700 mb-1">
-                                    ${order.totalPrice.toFixed(2)}
+                                    ฿{order.totalPrice.toFixed(2)}
                                 </p>
                                 {/* Cancel Button */}
                                 <button
@@ -161,11 +161,11 @@ const OrderList = () => {
             <div className="flex justify-between mt-4">
                 <p className="font-bold text-[#34A853]">ทั้งหมด</p>
                 <p className="text-sm font-medium text-gray-700">
-                    ${orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
+                    ฿{orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
                 </p>
             </div>
             <div
-                className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer"
+                className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer hover:bg-green-600 transition sm:left-1/2 sm:transform sm:-translate-x-1/2"
                 style={{ zIndex: 100 }}
                 onClick={handleConfirmOrder}
             >
@@ -176,7 +176,7 @@ const OrderList = () => {
                     <span className="font-bold text-lg"> สั่งเลย</span>
                 </div>
                 <span className="font-bold text-lg">
-                    ${orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
+                    ฿{orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
                 </span>
             </div>
         </div>

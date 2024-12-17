@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
-    const [groupedOrders, setGroupedOrders] = useState({});
+    const [groupedOrders, setGroupedOrders] = useState([]);
     const navigate = useNavigate();
 
     // Fetch orders in real-time
@@ -48,7 +48,16 @@ const AdminOrders = () => {
                 acc[order.userId].totalPrice += order.totalPrice;
                 return acc;
             }, {});
-            setGroupedOrders(grouped);
+
+            // Sort the grouped orders by the latest order's timestamp
+            const sortedGroupedOrders = Object.entries(grouped).sort(([userIdA, userOrdersA], [userIdB, userOrdersB]) => {
+                const latestOrderA = userOrdersA.orders[0];
+                const latestOrderB = userOrdersB.orders[0];
+                return new Date(latestOrderB.timestamp) - new Date(latestOrderA.timestamp); // Descending order
+            });
+
+            // Set the sorted grouped orders as an array
+            setGroupedOrders(sortedGroupedOrders);
         });
 
         // Cleanup the subscription
@@ -82,7 +91,7 @@ const AdminOrders = () => {
                 <img src="\assets\img\option.png" alt="option icon" className="w-5 h-5" />
             </div>
 
-            {Object.entries(groupedOrders).map(([userId, userOrders]) => (
+            {groupedOrders.map(([userId, userOrders]) => (
                 <div key={userId} className="bg-white shadow-md rounded-lg p-4 mb-4 cursor-pointer" onClick={() => navigate(`/admin-list/${userId}`)}>
                     <div className="flex justify-between items-center mb-2">
                         <p className="text-sm font-semibold">

@@ -133,7 +133,7 @@ const OrderItem = () => {
             />
             <h1 className="text-xl font-semibold mb-2 p-2">{item.name}</h1>
             <p className="text-gray-500 mb-2 px-2">Starting price</p>
-            <p className="text-lg font-semibold mb-4 px-2">${item.price}</p>
+            <p className="text-lg font-meddium mb-4 px-2">฿ {item.price}</p>
 
             <AddOnOptions
                 addOnOptions={addOnOptions}
@@ -151,7 +151,7 @@ const OrderItem = () => {
                     >
                         <option value="">ใส่กล่องหรือกินที่นี่</option>
                         <option value="ใส่กล่อง">ใส่กล่อง</option>
-                        <option value="กินนี่">กินนี่</option>
+                        <option value="กินที่นี่">กินที่นี่</option>
                     </select>
                 </h2>
                 <textarea
@@ -168,7 +168,7 @@ const OrderItem = () => {
                     onClick={handleBack}
                     className="bg-green-500 text-white px-4 py-2 rounded-lg"
                 >
-                    ใส่ตะกร้า ${calculateTotalPrice().toFixed(2)}
+                    ใส่ตะกร้า ฿{calculateTotalPrice().toFixed(2)}
                 </button>
             </div>
         </div>

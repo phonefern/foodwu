@@ -17,7 +17,7 @@ const AddOnOptions = ({ addOnOptions, selectedAddOns, handleAddOnChange }) => (
                     <label htmlFor={`option-${index}`} className="flex-1">
                         {option.name}
                     </label>
-                    <span className="text-sm text-gray-500">+ ${option.price.toFixed(2)}</span>
+                    <span className="text-sm text-gray-500">+ ฿{option.price.toFixed(2)}</span>
                 </div>
             ))}
         </div>

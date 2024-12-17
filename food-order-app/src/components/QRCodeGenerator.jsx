@@ -21,16 +21,14 @@ const db = getFirestore(app);
 
 const QRCodeGenerator = () => {
   useEffect(() => {
-    // Function to generate a random userId
     const generateRandomUserId = () => Math.floor(Math.random() * 1000000).toString();
 
     const userId = generateRandomUserId();
     const url = `https://foodqueue.web.app/dashboard/${userId}`;
 
-    // Add user to Firestore
     const addUserToFirestore = async (userId) => {
       try {
-        const userRef = doc(db, "users", userId); // Reference to Firestore document
+        const userRef = doc(db, "users", userId);
         await setDoc(userRef, {
           userId: userId,
           createdAt: serverTimestamp(),
@@ -42,7 +40,6 @@ const QRCodeGenerator = () => {
       }
     };
 
-    // Generate QR Code
     const canvas = document.getElementById("qrcodeCanvas");
     QRCode.toCanvas(
       canvas,
@@ -52,23 +49,36 @@ const QRCodeGenerator = () => {
         if (error) console.error(error);
         console.log("QR Code generated!");
 
-        // Add user to Firestore after QR Code is generated
         await addUserToFirestore(userId);
       }
     );
 
-    // Add event listener to open the URL when clicked
     if (canvas) {
       canvas.addEventListener("click", () => {
         window.open(url, "_self");
       });
     }
-  }, []); // Empty dependency array ensures this effect runs only once
+  }, []);
+
+  // ฟังก์ชันสำหรับดาวน์โหลด QR Code เป็นรูปภาพ
+  const downloadQRCode = () => {
+    const canvas = document.getElementById("qrcodeCanvas");
+    if (canvas) {
+      const imageURL = canvas.toDataURL("image/png"); // แปลง Canvas เป็น Data URL
+      const link = document.createElement("a");
+      link.href = imageURL;
+      link.download = "qrcode.png"; // ชื่อไฟล์ที่ต้องการดาวน์โหลด
+      link.click();
+    }
+  };
 
   return (
     <div>
       <h1>QR Code Generator</h1>
       <canvas id="qrcodeCanvas"></canvas>
+      <button onClick={downloadQRCode} style={{ marginTop: "10px" }}>
+        Download QR Code
+      </button>
     </div>
   );
 };

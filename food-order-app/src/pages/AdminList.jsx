@@ -55,7 +55,7 @@ const OrderList = () => {
 
             const batchUpdates = [];
             querySnapshot.forEach((doc) => {
-                const docRef = doc.ref; 
+                const docRef = doc.ref;
                 batchUpdates.push(updateDoc(docRef, { status: "completed" }));
             });
 
@@ -64,7 +64,7 @@ const OrderList = () => {
 
             // Navigate back or update UI
             console.log("Orders successfully marked as completed.");
-            navigate(`/admin-orders`); 
+            navigate(`/admin-orders`);
         } catch (error) {
             console.error("Error updating orders:", error);
         }
@@ -118,7 +118,7 @@ const OrderList = () => {
                         </div>
                         <div className="text-right">
                             <p className="text-sm font-medium text-gray-700">
-                                ${order.totalPrice}
+                                ฿{order.totalPrice}
                             </p>
                         </div>
                     </div>
@@ -128,13 +128,13 @@ const OrderList = () => {
             <div className="flex justify-between mt-4">
                 <p className="font-bold text-[#34A853]">ทั้งหมด</p>
                 <p className="text-sm font-medium text-gray-700">
-                    ${orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
+                    ฿{orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
                 </p>
             </div>
             <div
-                className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer"
+                className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer hover:bg-green-600 transition sm:left-1/2 sm:transform sm:-translate-x-1/2"
                 style={{ zIndex: 100 }}
-                onClick={handleCompleteOrders} // Call the handler function here
+                onClick={handleCompleteOrders}
             >
                 <div className="flex items-center">
                     <span className="bg-white text-green-500 font-bold px-2 rounded-full mr-3">
@@ -143,7 +143,7 @@ const OrderList = () => {
                     <span className="font-bold text-lg">ทำอาหารเสร็จสิ้น</span>
                 </div>
                 <span className="font-bold text-lg">
-                    ${orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
+                    ฿{orders.reduce((acc, order) => acc + order.quantity * order.totalPrice, 0).toFixed(2)}
                 </span>
             </div>
         </div>
