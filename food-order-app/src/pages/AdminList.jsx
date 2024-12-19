@@ -81,7 +81,7 @@ const OrderList = () => {
                         strokeWidth={1.5}
                         stroke="currentColor"
                         className="w-6 h-6 text-gray-700 cursor-pointer"
-                        onClick={() => navigate(`/dashboard/${userId}`)}
+                        onClick={() => navigate(-1)}
                     >
                         <path
                             strokeLinecap="round"

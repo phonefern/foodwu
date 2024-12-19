@@ -63,7 +63,7 @@ const Cart = () => {
   return (
     <div
       onClick={() => navigate(`/order-list/${userId}`)} 
-      className="fixed bottom-4 left-4 right-4 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer hover:bg-green-600 transition sm:left-1/2 sm:transform sm:-translate-x-1/2"
+      className="fixed bottom-4 left-1 right-1 bg-[#34A853] text-white px-4 py-1 rounded-md shadow-lg flex items-center justify-between cursor-pointer hover:bg-green-600 transition sm:left-1/2 sm:transform sm:-translate-x-1/2"
       style={{ zIndex: 100 }}
     >
       <div className="flex items-center">

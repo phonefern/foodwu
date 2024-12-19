@@ -56,15 +56,14 @@ const OrderList = () => {
 
             setOrders(prevOrders => prevOrders.filter(order => order.itemId !== itemId));
 
-
             const orderRef = doc(db, "orders", orderId);
-
 
             await updateDoc(orderRef, {
                 status: "cancelled",
             });
 
             console.log("Order status updated to 'cancelled' for orderId:", orderId);
+            window.location.reload();
         } catch (error) {
             console.error("Error cancelling order:", error);
         }
@@ -139,13 +138,13 @@ const OrderList = () => {
                                     )}
                                 </div>
                             </div>
-                            {/* Price and Cancel Button Container */}
+                           
                             <div className="flex flex-col items-end">
-                                {/* Price */}
+                         
                                 <p className="text-sm font-medium text-gray-700 mb-1">
                                     ฿{order.totalPrice.toFixed(2)}
                                 </p>
-                                {/* Cancel Button */}
+                             
                                 <button
                                     onClick={() => handleCancel(order.itemId, order.orderId)}
                                     className="text-red-500"

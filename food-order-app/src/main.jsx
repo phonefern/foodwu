@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+// import './index.css'
 import OrderItem from './pages/OrderItem.jsx'
 import OrderList from './pages/OrderList.jsx'
 import AdminOrders from './pages/AdminOrders.jsx'

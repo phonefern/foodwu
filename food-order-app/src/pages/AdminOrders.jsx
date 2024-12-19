@@ -1,15 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig"; // Replace with your Firebase config
-import { useNavigate } from "react-router-dom";
+import OrderList from "../components/OrderList";
+import EnableSoundModal from "../components/EnableSoundModal";
+import NewOrderModal from "../components/NewOrderModal";
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [groupedOrders, setGroupedOrders] = useState([]);
-    const navigate = useNavigate();
+    const [newOrder, setNewOrder] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [soundEnabled, setSoundEnabled] = useState(false);
+    const previousOrdersLength = useRef(0);
+    const audioRef = useRef(new Audio("/assets/sounds/noti.mp3"));
 
-    // Fetch orders in real-time
     useEffect(() => {
+       
+        const soundPreference = localStorage.getItem("soundEnabled");
+        if (soundPreference === "true") {
+            setSoundEnabled(true);
+        }
+
         const ordersRef = collection(db, "orders");
         const q = query(
             ordersRef,
@@ -36,35 +47,48 @@ const AdminOrders = () => {
 
             setOrders(fetchedOrders);
 
-            // Group orders by userId
+          
+            if (fetchedOrders.length > previousOrdersLength.current) {
+                setNewOrder(true);
+                setShowModal(true);
+                if (soundEnabled) playNotificationSound();
+            } else {
+                setShowModal(false);
+            }
+
+            previousOrdersLength.current = fetchedOrders.length;
+
             const grouped = fetchedOrders.reduce((acc, order) => {
                 if (!acc[order.userId]) {
-                    acc[order.userId] = {
-                        orders: [],
-                        totalPrice: 0,
-                    };
+                    acc[order.userId] = { orders: [], totalPrice: 0 };
                 }
                 acc[order.userId].orders.push(order);
                 acc[order.userId].totalPrice += order.totalPrice;
                 return acc;
             }, {});
 
-            // Sort the grouped orders by the latest order's timestamp
-            const sortedGroupedOrders = Object.entries(grouped).sort(([userIdA, userOrdersA], [userIdB, userOrdersB]) => {
-                const latestOrderA = userOrdersA.orders[0];
-                const latestOrderB = userOrdersB.orders[0];
-                return new Date(latestOrderB.timestamp) - new Date(latestOrderA.timestamp); // Descending order
+            const sortedGroupedOrders = Object.entries(grouped).sort(([_, a], [__, b]) => {
+                return new Date(b.orders[0].timestamp) - new Date(a.orders[0].timestamp);
             });
 
-            // Set the sorted grouped orders as an array
             setGroupedOrders(sortedGroupedOrders);
         });
 
-        // Cleanup the subscription
         return () => unsubscribe();
-    }, []);
+    }, [soundEnabled]);
 
-    // Format timestamp to relative time
+    const playNotificationSound = () => {
+        const audio = audioRef.current;
+        audio.loop = true;
+        audio.play().catch((error) => console.error("Error playing notification sound:", error));
+    };
+
+    const stopNotificationSound = () => {
+        const audio = audioRef.current;
+        audio.pause();
+        audio.currentTime = 0;
+    };
+
     const formatRelativeTime = (timestamp) => {
         const orderTime = new Date(timestamp);
         const now = new Date();
@@ -76,52 +100,31 @@ const AdminOrders = () => {
         return `${Math.floor(diffInMinutes / 1440)} day${Math.floor(diffInMinutes / 1440) > 1 ? "s" : ""} ago`;
     };
 
+    const handleConfirm = () => {
+        setShowModal(false);
+        stopNotificationSound();
+        setNewOrder(false);
+    };
+
+    const enableSound = () => {
+        setSoundEnabled(true);
+        localStorage.setItem("soundEnabled", "true"); 
+    };
+
     return (
         <div className="p-4 bg-gray-200 min-h-screen">
+           
+            {!soundEnabled && <EnableSoundModal enableSound={enableSound} />}
             <div className="flex items-center justify-between mb-6">
-                {/* Home Icon */}
                 <img src="\assets\img\home.png" alt="home icon" className="w-5 h-5" />
-
-                {/* Centered Heading */}
                 <h1 className="text-xl font-semibold text-center flex-grow text-center">
                     Today's Orders
                 </h1>
-
-                {/* Option Icon */}
                 <img src="\assets\img\option.png" alt="option icon" className="w-5 h-5" />
             </div>
-
-            {groupedOrders.map(([userId, userOrders]) => (
-                <div key={userId} className="bg-white shadow-md rounded-lg p-4 mb-4 cursor-pointer" onClick={() => navigate(`/admin-list/${userId}`)}>
-                    <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm font-semibold">
-                            ID: <span className="text-gray-800">{userId}</span>
-                        </p>
-                        <p className="text-green-600 font-bold">
-                            Total: {userOrders.totalPrice.toFixed(2)} THB
-                        </p>
-                    </div>
-
-                    <p className="text-sm text-gray-500 mb-2">{formatRelativeTime(userOrders.orders[0].timestamp)}</p>
-
-                    <ul className="text-gray-700">
-                        {userOrders.orders.map((order) => (
-                            <li key={order.id} className="flex justify-between text-sm">
-                                <div>
-                                    • {order.items.map((item, index) => (
-                                        <span key={index}>
-                                            {item.name}
-                                            <span className="text-gray-500"> ({item.quantity}x)</span>
-
-                                            {index < order.items.length - 1 ? ", " : ""}
-                                        </span>
-                                    ))}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ))}
+            <OrderList groupedOrders={groupedOrders} formatRelativeTime={formatRelativeTime} />
+       
+            {showModal && <NewOrderModal handleConfirm={handleConfirm} />}
         </div>
     );
 };
