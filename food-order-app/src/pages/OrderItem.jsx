@@ -111,6 +111,7 @@ const OrderItem = () => {
     const handleBack = async () => {
         await handleAddToCart();
         navigate(-1);
+        
     };
 
     if (!item) return <LoadingScreen />;
@@ -118,7 +119,10 @@ const OrderItem = () => {
     return (
         <div className="max-w-md mx-auto relative">
             <a
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                    navigate(-1);
+                    
+                }}
                 className="absolute top-4 left-4 bg-[#00000080] text-gray-700 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-300"
                 aria-label="Close"
             >
@@ -162,7 +166,7 @@ const OrderItem = () => {
                 ></textarea>
             </div>
 
-            <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-2 pb-4">
                 <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
                 <button
                     onClick={handleBack}

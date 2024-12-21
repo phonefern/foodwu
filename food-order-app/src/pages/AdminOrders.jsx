@@ -107,9 +107,15 @@ const AdminOrders = () => {
     };
 
     const enableSound = () => {
-        setSoundEnabled(true);
-        localStorage.setItem("soundEnabled", "true"); 
+        const audio = audioRef.current;
+        audio.play().then(() => {
+            setSoundEnabled(true);
+            localStorage.setItem("soundEnabled", "true");
+        }).catch((error) => {
+            console.error("Error playing sound:", error);
+        });
     };
+    
 
     return (
         <div className="p-4 bg-gray-200 min-h-screen">
